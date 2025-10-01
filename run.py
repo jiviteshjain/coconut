@@ -43,11 +43,12 @@ def main():
     args = parser.parse_args()
 
     # init distributed environment
-    dist.init_process_group("nccl")
     local_rank = int(os.environ["LOCAL_RANK"])
     rank = int(os.environ["RANK"])
     world_size = int(os.environ["WORLD_SIZE"])
+    print(f"Local rank: {local_rank}, Rank: {rank}, World size: {world_size}")
     torch.cuda.set_device(local_rank)
+    dist.init_process_group("nccl")
 
     # load the configuration file
     with open(args.config_file) as f:
@@ -63,7 +64,7 @@ def main():
     if not os.path.exists(save_dir) and rank == 0:
         os.makedirs(save_dir)
 
-    torch.distributed.barrier()
+    torch.distributed.barrier(device_ids=[rank])
     cur_ckpts = os.listdir(save_dir)
 
     # check if the job is preempted and resumed.
@@ -357,6 +358,7 @@ def main():
                 batch = {
                     key: batch[key].to(rank) for key in batch.keys() if key != "idx"
                 }
+                print(batch.keys())
 
                 outputs = parallel_model(**batch)
 
