@@ -248,23 +248,29 @@ def get_cot_latent_dataset(
             scheduled_stage_to_train = random.choice(
                 list(range(len(sample["steps_tokenized"]) + 1))
             )
+            if scheduled_stage_to_train > configs.max_latent_stage:
+                scheduled_stage_to_train = configs.max_latent_stage
         else:
             scheduled_stage_to_train = scheduled_stage
 
-        if scheduled_stage_to_train > configs.max_latent_stage:
-            n_skip_steps = 10000  # skip all
-            if configs.pad_latent_to_max:
-                n_latent_tokens = configs.max_latent_stage
-            else:
-                n_latent_tokens = min(
-                    len(sample["steps_tokenized"]), configs.max_latent_stage
-                )
+        # if scheduled_stage_to_train > configs.max_latent_stage:
+        #     n_skip_steps = 10000  # skip all
+        #     if configs.pad_latent_to_max:
+        #         n_latent_tokens = configs.max_latent_stage
+        #     else:
+        #         n_latent_tokens = min(
+        #             len(sample["steps_tokenized"]), configs.max_latent_stage
+        #         )
 
-        else:
-            n_skip_steps, n_latent_tokens = (
-                scheduled_stage_to_train,
-                scheduled_stage_to_train,
-            )
+        # else:
+        #     n_skip_steps, n_latent_tokens = (
+        #         scheduled_stage_to_train,
+        #         scheduled_stage_to_train,
+        #     )
+        n_skip_steps, n_latent_tokens = (
+            scheduled_stage_to_train,
+            scheduled_stage_to_train,
+        )
 
         if configs.no_cot:
             n_skip_steps = 100  # skip all step
