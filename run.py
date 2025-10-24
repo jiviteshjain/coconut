@@ -310,7 +310,8 @@ def main():
                 sampler=DistributedSampler(dataset_loss_val, shuffle=False),
             )
 
-            if configs.reset_optimizer:
+            if configs.reset_optimizer and epoch % configs.epochs_per_stage == 0:
+                print(f"Resetting optimizer for epoch {epoch}, stage {scheduled_stage}")
                 del optimizer
 
                 optimizer = optim.AdamW(
